@@ -2496,10 +2496,10 @@ public class Controller
             if (parent != null) {
                 switchToTab(parent);
                 // Now we close the other tab
-                closeTab(current);
+                //closeTab(current);
             } else {
                 if ((current.getAppId() != null) || current.closeOnBack()) {
-                    closeCurrentTab(true);
+                    //closeCurrentTab(true);
                 }
                 /*
                  * Instead of finishing the activity, simply push this to the back
@@ -2508,7 +2508,7 @@ public class Controller
                  * root of the task. So we can use either true or false for
                  * moveTaskToBack().
                  */
-                mActivity.moveTaskToBack(true);
+                //mActivity.moveTaskToBack(true);
             }
         }
     }
