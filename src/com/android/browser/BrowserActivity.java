@@ -37,6 +37,10 @@ import android.view.Window;
 import com.android.browser.stub.NullController;
 import com.google.common.annotations.VisibleForTesting;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
 public class BrowserActivity extends Activity {
 
     public static final String ACTION_SHOW_BOOKMARKS = "show_bookmarks";
@@ -59,6 +63,12 @@ public class BrowserActivity extends Activity {
         }
         super.onCreate(icicle);
 
+        if (propReader("ro.boot.kioskdisable") != null) {
+            Log.d(LOGTAG, "found a reset, GOODBYE");
+            finish();
+            return;
+        }
+
         if (shouldIgnoreIntents()) {
             finish();
             return;
@@ -74,6 +84,14 @@ public class BrowserActivity extends Activity {
 
         Intent intent = (icicle == null) ? getIntent() : null;
         mController.start(intent);
+
+
+        String test = propReader("ro.boot.url");
+        if (test != null) {
+            Log.d(LOGTAG, "found a url, setting to: "+test);
+            BrowserSettings.getInstance().setHomePage(test);
+            ((UiController)mController).openTabToHomePage();
+        }
 
         getWindow().getDecorView().setSystemUiVisibility(
                         View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
@@ -312,4 +330,27 @@ public class BrowserActivity extends Activity {
                 super.dispatchGenericMotionEvent(ev);
     }
 
+    // Constructs returns result of a getprop call
+    public static String propReader(String propName) {
+        Process proc = null;
+        String line;
+
+        try {
+            proc = Runtime.getRuntime().exec("/system/bin/getprop " + propName);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        BufferedReader br = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+
+        try {
+            if ((line = br.readLine()) != null && !line.isEmpty())
+                return line.trim();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
 }
