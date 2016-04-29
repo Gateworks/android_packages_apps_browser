@@ -18,6 +18,8 @@ package com.android.browser;
 
 import android.app.Activity;
 import android.app.KeyguardManager;
+import android.app.admin.DevicePolicyManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -101,6 +103,37 @@ public class BrowserActivity extends Activity {
                         | View.SYSTEM_UI_FLAG_FULLSCREEN // hide status bar
                         | View.SYSTEM_UI_FLAG_IMMERSIVE
                         | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+
+
+        DevicePolicyManager mDPM = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
+        ComponentName mDeviceAdminSample = new ComponentName(this, DeviceAdmin.class);
+        if (mDPM.isDeviceOwnerApp(this.getPackageName())) {
+            Log.d(LOGTAG, "isDeviceOwnerApp: YES");
+            String[] packages = {this.getPackageName()};
+            mDPM.setLockTaskPackages(mDeviceAdminSample, packages);
+        } else {
+            Log.d(LOGTAG, "isDeviceOwnerApp: NO");
+            try {
+                // Launch the activity to have the user enable our admin.
+                intent = new Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN);
+                intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, mDeviceAdminSample);
+                intent.putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION, "Enabling force lock admin");
+                startActivityForResult(intent, 1);
+                String[] packages = {this.getPackageName()};
+                mDPM.setLockTaskPackages(mDeviceAdminSample, packages);
+                Log.d(LOGTAG, "isDeviceOwnerApp: JUST BECAME YES");
+            } catch (Exception e) {
+                Log.d(LOGTAG, "isDeviceOwnerApp: STILL NO.... I Failed");
+                e.printStackTrace();
+            }
+        }
+
+        if (mDPM.isLockTaskPermitted(this.getPackageName())) {
+            Log.d(LOGTAG, "isLockTaskPermitted: ALLOWED");
+        } else {
+            Log.d(LOGTAG, "isLockTaskPermitted: NOT ALLOWED");
+        }
+        startLockTask();
     }
 
     public static boolean isTablet(Context context) {
