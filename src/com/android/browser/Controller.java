@@ -674,11 +674,11 @@ public class Controller
      */
     /* package */ Bundle createSaveState() {
         Bundle saveState = new Bundle();
-        mTabControl.saveState(saveState);
-        if (!saveState.isEmpty()) {
-            // Save time so that we know how old incognito tabs (if any) are.
-            saveState.putSerializable("lastActiveDate", Calendar.getInstance());
-        }
+//        mTabControl.saveState(saveState);
+//        if (!saveState.isEmpty()) {
+//            // Save time so that we know how old incognito tabs (if any) are.
+//            saveState.putSerializable("lastActiveDate", Calendar.getInstance());
+//        }
         return saveState;
     }
 

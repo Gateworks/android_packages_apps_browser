@@ -301,8 +301,7 @@ public class BrowserActivity extends Activity {
 
     @Override
     public boolean onKeyLongPress(int keyCode, KeyEvent event) {
-        return mController.onKeyLongPress(keyCode, event) ||
-            super.onKeyLongPress(keyCode, event);
+        return super.onKeyLongPress(keyCode, event);
     }
 
     @Override
