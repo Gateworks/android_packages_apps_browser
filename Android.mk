@@ -22,7 +22,12 @@ LOCAL_EMMA_COVERAGE_FILTER := *,-com.android.common.*
 # We need the sound recorder for the Media Capture API.
 LOCAL_REQUIRED_MODULES := SoundRecorder
 
+LOCAL_OVERRIDES_PACKAGES := \
+	Development BasicDreams CaptivePortalLogin DownloadProviderUi Exchange2 \
+	PacProcessor PicoTts PrintSpooler Provision QuickSearchBox SpeechRecorder \
+	Clock Downloads Search Calculator Calender Camera Email Contacts Gallery Messaging\
+	Home Launcher3 Launcher2
+
+
 include $(BUILD_PACKAGE)
 
-# additionally, build tests in sub-folders in a separate .apk
-include $(call all-makefiles-under,$(LOCAL_PATH))
