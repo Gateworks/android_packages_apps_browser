@@ -42,6 +42,7 @@
     <style name="ActionBarStyle" parent="@android:style/Widget.Holo.ActionBar">
         <item name="android:background">@drawable/bg_urlbar</item>
         <item name="android:displayOptions"></item>
+        <item name="android:visibility">gone</item>
     </style>
     <style name="Suggestions" parent="@android:style/Widget.Holo.AutoCompleteTextView">
         <item name="android:popupBackground">#D0000000</item>
