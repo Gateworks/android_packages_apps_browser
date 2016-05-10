@@ -106,45 +106,33 @@ public class BrowserActivity extends Activity {
             ((UiController)mController).openTabToHomePage();
         }
 
-        getActionBar().hide();
-        getWindow().getDecorView().setSystemUiVisibility(
-                        View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION // hide nav bar
-                        | View.SYSTEM_UI_FLAG_FULLSCREEN // hide status bar
-                        | View.SYSTEM_UI_FLAG_IMMERSIVE
-                        | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+        startKioskMode();
+    }
 
-
-        DevicePolicyManager mDPM = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
+    private void startKioskMode() {
+        DevicePolicyManager DPM = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
         ComponentName mDeviceAdminSample = new ComponentName(this, DeviceAdmin.class);
-        if (mDPM.isDeviceOwnerApp(this.getPackageName())) {
-            Log.d(LOGTAG, "isDeviceOwnerApp: YES");
-            String[] packages = {this.getPackageName()};
-            mDPM.setLockTaskPackages(mDeviceAdminSample, packages);
-        } else {
-            Log.d(LOGTAG, "isDeviceOwnerApp: NO");
-            try {
-                // Launch the activity to have the user enable our admin.
-                intent = new Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN);
-                intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, mDeviceAdminSample);
-                intent.putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION, "Enabling force lock admin");
-                startActivityForResult(intent, 1);
-                String[] packages = {this.getPackageName()};
-                mDPM.setLockTaskPackages(mDeviceAdminSample, packages);
-                Log.d(LOGTAG, "isDeviceOwnerApp: JUST BECAME YES");
-            } catch (Exception e) {
-                Log.d(LOGTAG, "isDeviceOwnerApp: STILL NO.... I Failed");
-                e.printStackTrace();
-            }
+        Intent intent;
+
+        /* Check to see if application has already been authorized
+         * for Lock Task Mode.
+         */
+        if (DPM.isLockTaskPermitted(this.getPackageName())) {
+            startLockTask();
+        }
+        else if (!DPM.isDeviceOwner(getPackageName()) || !DPM.isAdminActive(mDeviceAdminSample)) {
+            intent = new Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN);
+            intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, mDeviceAdminSample);
+            intent.putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION, "Enabling force lock admin");
+            startActivityForResult(intent, 99);
+        }
+        else {
+            String[] packages = {getPackageName()};
+            DPM.setLockTaskPackages(mDeviceAdminSample, packages);
+            startLockTask();
         }
 
-        if (mDPM.isLockTaskPermitted(this.getPackageName())) {
-            Log.d(LOGTAG, "isLockTaskPermitted: ALLOWED");
-        } else {
-            Log.d(LOGTAG, "isLockTaskPermitted: NOT ALLOWED");
-        }
-        startLockTask();
+        return;
     }
 
     public static boolean isTablet(Context context) {
@@ -336,6 +324,18 @@ public class BrowserActivity extends Activity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode,
             Intent intent) {
+        if (requestCode == 99) {
+            if(resultCode == Activity.RESULT_OK){
+                DevicePolicyManager DPM = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
+                ComponentName mDeviceAdminSample = new ComponentName(this, DeviceAdmin.class);
+                String[] packages = {getPackageName()};
+                DPM.setLockTaskPackages(mDeviceAdminSample, packages);
+            }
+            if (resultCode == Activity.RESULT_CANCELED) {
+                Log.d(LOGTAG, getPackageName() + " was denied device admin.");
+            }
+            startLockTask();
+        }
         mController.onActivityResult(requestCode, resultCode, intent);
     }
 
