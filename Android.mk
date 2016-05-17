@@ -20,10 +20,12 @@ LOCAL_PROGUARD_FLAG_FILES := proguard.flags
 LOCAL_EMMA_COVERAGE_FILTER := *,-com.android.common.*
 
 # We need the sound recorder for the Media Capture API.
-LOCAL_REQUIRED_MODULES := SoundRecorder
+#LOCAL_REQUIRED_MODULES := SoundRecorder
 
 LOCAL_OVERRIDES_PACKAGES := \
-	Development BasicDreams CaptivePortalLogin DownloadProviderUi Exchange2 \
+	SharedStorageBackup TeleService VpnDialogs \
+	TelephonyProvider CalendarProvider SoundRecorder Telecom BackupRestoreConfirmation \
+	SoundRecorder Development BasicDreams CaptivePortalLogin DownloadProviderUi Exchange2 \
 	PacProcessor PicoTts PrintSpooler Provision QuickSearchBox SpeechRecorder \
 	Clock Downloads Search Calculator Calender Camera Email Contacts Gallery Messaging\
 	Home Launcher3 Launcher2
