@@ -20,11 +20,13 @@ import android.app.Activity;
 import android.app.KeyguardManager;
 import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.PowerManager;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.ActionMode;
 import android.view.ContextMenu;
@@ -35,6 +37,8 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
+import android.provider.Settings.System;
+import android.view.WindowManager;
 
 import com.android.browser.stub.NullController;
 import com.google.common.annotations.VisibleForTesting;
@@ -83,16 +87,6 @@ public class BrowserActivity extends Activity {
             return;
         }
 
-        getActionBar().hide();
-        getWindow().getDecorView().setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_FULLSCREEN
-                        | View.SYSTEM_UI_FLAG_IMMERSIVE
-                        | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
-
         mController = createController();
 
         Intent intent = (icicle == null) ? getIntent() : null;
@@ -107,6 +101,9 @@ public class BrowserActivity extends Activity {
         }
 
         startKioskMode();
+        setBrightness(255);
+
+        getActionBar().hide();
     }
 
     private void startKioskMode() {
@@ -133,6 +130,25 @@ public class BrowserActivity extends Activity {
         }
 
         return;
+    }
+
+    private void setBrightness(int brightness) {
+        ContentResolver content = getContentResolver();
+        Window window = getWindow();
+
+        if (brightness < 20)
+            brightness = 20;
+        else if (brightness > 255)
+            brightness = 255;
+
+        //Set the system brightness using the brightness variable value
+        System.putInt(content, System.SCREEN_BRIGHTNESS, brightness);
+        //Get the current window attributes
+        WindowManager.LayoutParams layoutpars = window.getAttributes();
+        //Set the brightness of this window
+        layoutpars.screenBrightness = brightness / (float)255;
+        //Apply attribute changes to this window
+        window.setAttributes(layoutpars);
     }
 
     public static boolean isTablet(Context context) {
@@ -199,6 +215,14 @@ public class BrowserActivity extends Activity {
             Log.v(LOGTAG, "BrowserActivity.onResume: this=" + this);
         }
         mController.onResume();
+        getWindow().getDecorView().setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_IMMERSIVE
+                        | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
     }
 
     @Override
