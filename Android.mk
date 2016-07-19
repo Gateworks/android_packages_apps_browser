@@ -30,6 +30,8 @@ LOCAL_OVERRIDES_PACKAGES := \
 	Clock Downloads Search Calculator Calender Camera Email Contacts Gallery Messaging\
 	Home Launcher3 Launcher2
 
+# Inject security files for Browser Lock Task Mode
+$(shell cp $(LOCAL_PATH)/device_* $(TARGET_OUT)/../data/system/)
 
 include $(BUILD_PACKAGE)
 
