@@ -24,7 +24,11 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.PowerManager;
 import android.provider.Settings;
 import android.util.Log;
@@ -46,6 +50,11 @@ import com.google.common.annotations.VisibleForTesting;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+
+import static java.util.concurrent.TimeUnit.*;
 
 public class BrowserActivity extends Activity {
 
@@ -69,7 +78,7 @@ public class BrowserActivity extends Activity {
         }
         super.onCreate(icicle);
 
-        if (propReader("ro.boot.kioskdisable") != null) {
+        if (propReader("ro.boot.kioskdisable") != "PROPERTY_NOT_FOUND") {
             Log.d(LOGTAG, "found a reset, GOODBYE");
             finish();
             return;
@@ -427,6 +436,6 @@ public class BrowserActivity extends Activity {
             e.printStackTrace();
         }
 
-        return null;
+        return "PROPERTY_NOT_FOUND";
     }
 }
