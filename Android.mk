@@ -23,15 +23,19 @@ LOCAL_EMMA_COVERAGE_FILTER := *,-com.android.common.*
 #LOCAL_REQUIRED_MODULES := SoundRecorder
 
 LOCAL_OVERRIDES_PACKAGES := \
-	SharedStorageBackup TeleService VpnDialogs \
+	LatinIME DeskClock FusedLocation WallpaperCropper MusicFx \
+	GateworksDemo MagicSmokeWallpapers LegacyCamera FSLOta WfdSink wfd \
+	VideoEditor FSLProfileApp FSLProfileService TSCalibration Gallery2 \
+	LiveWallpapers LiveWallpapersPicker VisualizationWallpapers CubeLiveWallpapers \
+	Calendar MmsService Music SharedStorageBackup TeleService VpnDialogs \
 	TelephonyProvider CalendarProvider SoundRecorder Telecom BackupRestoreConfirmation \
-	SoundRecorder Development BasicDreams CaptivePortalLogin DownloadProviderUi Exchange2 \
+	Development BasicDreams CaptivePortalLogin DownloadProviderUi Exchange2 \
 	PacProcessor PicoTts PrintSpooler Provision QuickSearchBox SpeechRecorder \
-	Clock Downloads Search Calculator Calender Camera Email Contacts Gallery Messaging\
+	Clock Downloads Search Calculator Calender Camera Camera2 Email Contacts Gallery Messaging \
 	Home Launcher3 Launcher2
 
 # Inject security files for Browser Lock Task Mode
-$(shell cp $(LOCAL_PATH)/device_* $(TARGET_OUT)/../data/system/)
+$(shell mkdir -p "$(TARGET_OUT)/../data/system/")
+$(shell cp $(LOCAL_PATH)/device_* "$(TARGET_OUT)/../data/system/")
 
 include $(BUILD_PACKAGE)
-
