@@ -141,6 +141,15 @@ public class BrowserActivity extends Activity {
         return;
     }
 
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (!hasFocus) {
+            Intent closeDialog = new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);
+            sendBroadcast(closeDialog);
+        }
+    }
+
     private void setBrightness(int brightness) {
         ContentResolver content = getContentResolver();
         Window window = getWindow();
