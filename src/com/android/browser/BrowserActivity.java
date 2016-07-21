@@ -102,17 +102,23 @@ public class BrowserActivity extends Activity {
         mController.start(intent);
 
 
-        String test = propReader("ro.boot.url");
-        if (test != null) {
-            Log.d(LOGTAG, "found a url, setting to: "+test);
-            BrowserSettings.getInstance().setHomePage(test);
-            ((UiController)mController).openTabToHomePage();
-        }
-
         startKioskMode();
         setBrightness(255);
 
         getActionBar().hide();
+
+        int refreshTime;
+        try {
+            refreshTime = Integer.parseInt(propReader("ro.boot.refreshtime"));
+        } catch (NumberFormatException e) {
+            Log.d(LOGTAG, "onCreate: found invalid or missing refreshtime param for kiosk mode, " +
+                    "defaulting to 60 minutes");
+            refreshTime = 60 * 60;
+        }
+        KioskRefreshScheduler krs =
+                new KioskRefreshScheduler(propReader("ro.boot.url"), propReader("ro.boot.fallback"),
+                        refreshTime);
+        krs.begin();
     }
 
     private void startKioskMode() {
@@ -446,5 +452,100 @@ public class BrowserActivity extends Activity {
         }
 
         return "PROPERTY_NOT_FOUND";
+    }
+
+    public boolean isOnline() {
+        ConnectivityManager connMgr = (ConnectivityManager)
+                getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+        return (networkInfo != null && networkInfo.isConnected());
+    }
+
+    class KioskRefreshScheduler {
+        private final ScheduledExecutorService scheduler =
+                Executors.newScheduledThreadPool(1);
+        private String targetURL, fallbackURL;
+        private int refreshTime;
+        private ScheduledFuture<?> refresherHandle = null;
+        private Runnable changeToTargetURL, changeToFallbackURL;
+        private final BrowserSettings bs = BrowserSettings.getInstance();
+        private final Tab currentTab = ((UiController) mController).getCurrentTab();
+
+        public KioskRefreshScheduler(final String targetURL,final String fallbackURL, int refresh) {
+            if (targetURL == "PROPERTY_NOT_FOUND") {
+                Log.d(LOGTAG, "KioskRefreshScheduler: Kiosk browser target URL not found, " +
+                   "make sure to set androidboot.url correctly in the bootloader 'extra' variable");
+            }
+            if (fallbackURL == "PROPERTY_NOT_FOUND") {
+                Log.d(LOGTAG, "KioskRefreshScheduler: Kiosk browser fallback URL not found, " +
+                    "make sure to set androidboot.fallback correctly in the bootloader 'extra'" +
+                    " variable. (file URLs should be of the form 'file:///data/picture.png'");
+            }
+            this.refreshTime = refresh;
+            this.targetURL = targetURL;
+            this.fallbackURL = fallbackURL;
+            changeToFallbackURL = new Runnable() {
+                @Override
+                public void run() {
+                    bs.setHomePage(fallbackURL);
+                    ((UiController)mController).loadUrl(currentTab, bs.getHomePage());
+                }
+            };
+            changeToTargetURL = new Runnable() {
+                @Override
+                public void run() {
+                    bs.setHomePage(targetURL);
+                    ((UiController)mController).loadUrl(currentTab, bs.getHomePage());
+                }
+            };
+        }
+
+        public void begin() {
+            if (isOnline())
+                startStandardMode();
+            else
+                startFailureMode();
+        }
+
+        public void startFailureMode() {
+            Log.d("BROWSERTESTING", "failuremode: checking if network is online before continuing."
+                    + " Setting URL to this fallback in the meantime: " + fallbackURL);
+            runOnUiThread(changeToFallbackURL);
+
+            final Runnable refresher = new Runnable() {
+                public void run() {
+                    if (isOnline()) switchToStandardMode();
+                }
+            };
+            refresherHandle = scheduler.scheduleAtFixedRate(refresher, 0, 5, SECONDS);
+        }
+
+        public void startStandardMode() {
+            final Runnable refresher = new Runnable() {
+                public void run() {
+                    if (!isOnline()) {
+                        Log.d("KioskRefreshScheduler", "standardmode just encountered loss of connection while refreshing, switching to failuremode");
+                        switchToFailureMode();
+                    }
+                    else {
+                        runOnUiThread(changeToTargetURL);
+                        Log.d("KioskRefreshScheduler", "standardmode just refreshed the page to: " + targetURL);
+                    }
+
+                }
+            };
+            refresherHandle = scheduler.scheduleAtFixedRate(refresher, 0, refreshTime, SECONDS);
+        }
+
+        private void switchToFailureMode() {
+            refresherHandle.cancel(true);
+            startFailureMode();
+        }
+
+        private void switchToStandardMode() {
+            Log.d("BROWSERTESTING", "onCreate: network is online, going to standardMode");
+            refresherHandle.cancel(true);
+            startStandardMode();
+        }
     }
 }
