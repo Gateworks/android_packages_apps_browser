@@ -92,7 +92,7 @@ public class WebStorageSizeManager {
     // The default quota value for an origin.
     public final static long ORIGIN_DEFAULT_QUOTA = 3 * 1024 * 1024;  // 3MB
     // The default value for quota increases.
-    public final static long QUOTA_INCREASE_STEP = 1 * 1024 * 1024;  // 1MB
+    public final static long QUOTA_INCREASE_STEP = 0 * 1024 * 1024;  // 0 (was 1MB)
     // Extra padding space for appcache maximum size increases. This is needed
     // because WebKit sends us an estimate of the amount of space needed
     // but this estimate may, currently, be slightly less than what is actually

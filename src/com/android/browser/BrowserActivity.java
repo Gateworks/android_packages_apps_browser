@@ -101,7 +101,6 @@ public class BrowserActivity extends Activity {
         Intent intent = (icicle == null) ? getIntent() : null;
         mController.start(intent);
 
-
         startKioskMode();
         setBrightness(255);
 
@@ -496,6 +495,9 @@ public class BrowserActivity extends Activity {
                 public void run() {
                     bs.setHomePage(targetURL);
                     ((UiController)mController).loadUrl(currentTab, bs.getHomePage());
+
+                    //Also clear cache to prevent filling up disk
+                    bs.clearCache();
                 }
             };
         }
@@ -510,7 +512,8 @@ public class BrowserActivity extends Activity {
         public void startFailureMode() {
             Log.d("BROWSERTESTING", "failuremode: checking if network is online before continuing."
                     + " Setting URL to this fallback in the meantime: " + fallbackURL);
-            runOnUiThread(changeToFallbackURL);
+            if (!changeToFallbackURL.equals("PROPERTY_NOT_FOUND"))
+                runOnUiThread(changeToFallbackURL);
 
             final Runnable refresher = new Runnable() {
                 public void run() {
