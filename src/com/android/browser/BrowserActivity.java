@@ -78,12 +78,6 @@ public class BrowserActivity extends Activity {
         }
         super.onCreate(icicle);
 
-        if (propReader("ro.boot.kioskdisable") != "PROPERTY_NOT_FOUND") {
-            Log.d(LOGTAG, "found a reset, GOODBYE");
-            finish();
-            return;
-        }
-
         if (shouldIgnoreIntents()) {
             finish();
             return;
@@ -101,7 +95,12 @@ public class BrowserActivity extends Activity {
         Intent intent = (icicle == null) ? getIntent() : null;
         mController.start(intent);
 
-        startKioskMode();
+        if (propReader("ro.boot.kioskdisable") != "PROPERTY_NOT_FOUND") {
+            Log.d(LOGTAG, "ro.boot.kioskdisable was set, unlocking");
+        }
+        else {
+            startKioskMode();
+        }
         setBrightness(255);
 
         getActionBar().hide();
