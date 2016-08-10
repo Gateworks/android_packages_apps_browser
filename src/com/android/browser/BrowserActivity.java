@@ -462,7 +462,7 @@ public class BrowserActivity extends Activity {
     class KioskRefreshScheduler {
         private final ScheduledExecutorService scheduler =
                 Executors.newScheduledThreadPool(1);
-        private String targetURL, fallbackURL;
+        private String targetURL = "http://www.gateworks.com/", fallbackURL;
         private int refreshTime;
         private ScheduledFuture<?> refresherHandle = null;
         private Runnable changeToTargetURL, changeToFallbackURL;
@@ -474,13 +474,13 @@ public class BrowserActivity extends Activity {
                 Log.d(LOGTAG, "KioskRefreshScheduler: Kiosk browser target URL not found, " +
                    "make sure to set androidboot.url correctly in the bootloader 'extra' variable");
             }
+            else this.targetURL = targetURL;
             if (fallbackURL == "PROPERTY_NOT_FOUND") {
                 Log.d(LOGTAG, "KioskRefreshScheduler: Kiosk browser fallback URL not found, " +
                     "make sure to set androidboot.fallback correctly in the bootloader 'extra'" +
                     " variable. (file URLs should be of the form 'file:///data/picture.png'");
             }
             this.refreshTime = refresh;
-            this.targetURL = targetURL;
             this.fallbackURL = fallbackURL;
             changeToFallbackURL = new Runnable() {
                 @Override
