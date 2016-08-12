@@ -462,37 +462,38 @@ public class BrowserActivity extends Activity {
     class KioskRefreshScheduler {
         private final ScheduledExecutorService scheduler =
                 Executors.newScheduledThreadPool(1);
-        private String targetURL = "http://www.gateworks.com/", fallbackURL;
+        private String targetURL, fallbackURL;
         private int refreshTime;
         private ScheduledFuture<?> refresherHandle = null;
         private Runnable changeToTargetURL, changeToFallbackURL;
         private final BrowserSettings bs = BrowserSettings.getInstance();
         private final Tab currentTab = ((UiController) mController).getCurrentTab();
 
-        public KioskRefreshScheduler(final String targetURL,final String fallbackURL, int refresh) {
-            if (targetURL == "PROPERTY_NOT_FOUND") {
+        public KioskRefreshScheduler(final String tURL,final String fURL, int refresh) {
+            if (tURL.equals("PROPERTY_NOT_FOUND")) {
                 Log.d(LOGTAG, "KioskRefreshScheduler: Kiosk browser target URL not found, " +
                    "make sure to set androidboot.url correctly in the bootloader 'extra' variable");
+                bs.setHomePage("http://www.gateworks.com");
             }
-            else this.targetURL = targetURL;
-            if (fallbackURL == "PROPERTY_NOT_FOUND") {
+            if (fURL.equals("PROPERTY_NOT_FOUND")) {
                 Log.d(LOGTAG, "KioskRefreshScheduler: Kiosk browser fallback URL not found, " +
                     "make sure to set androidboot.fallback correctly in the bootloader 'extra'" +
                     " variable. (file URLs should be of the form 'file:///data/picture.png'");
             }
-            this.refreshTime = refresh;
-            this.fallbackURL = fallbackURL;
+            refreshTime = refresh;
+            fallbackURL = fURL;
             changeToFallbackURL = new Runnable() {
                 @Override
                 public void run() {
-                    bs.setHomePage(fallbackURL);
+                    if (!fURL.equals("PROPERTY_NOT_FOUND")) bs.setHomePage(fURL);
                     ((UiController)mController).loadUrl(currentTab, bs.getHomePage());
                 }
             };
             changeToTargetURL = new Runnable() {
                 @Override
                 public void run() {
-                    bs.setHomePage(targetURL);
+                    if (!tURL.equals("PROPERTY_NOT_FOUND")) bs.setHomePage(tURL);
+                    Log.d(LOGTAG, "standardmode just refreshed the page to: " + targetURL);
                     ((UiController)mController).loadUrl(currentTab, bs.getHomePage());
 
                     //Also clear cache to prevent filling up disk
@@ -511,7 +512,7 @@ public class BrowserActivity extends Activity {
         public void startFailureMode() {
             Log.d("BROWSERTESTING", "failuremode: checking if network is online before continuing."
                     + " Setting URL to this fallback in the meantime: " + fallbackURL);
-            if (!changeToFallbackURL.equals("PROPERTY_NOT_FOUND"))
+            if (fallbackURL != null && !fallbackURL.equals("PROPERTY_NOT_FOUND"))
                 runOnUiThread(changeToFallbackURL);
 
             final Runnable refresher = new Runnable() {
@@ -526,12 +527,11 @@ public class BrowserActivity extends Activity {
             final Runnable refresher = new Runnable() {
                 public void run() {
                     if (!isOnline()) {
-                        Log.d("KioskRefreshScheduler", "standardmode just encountered loss of connection while refreshing, switching to failuremode");
+                        Log.d(LOGTAG, "standardmode just encountered loss of connection while refreshing, switching to failuremode");
                         switchToFailureMode();
                     }
                     else {
                         runOnUiThread(changeToTargetURL);
-                        Log.d("KioskRefreshScheduler", "standardmode just refreshed the page to: " + targetURL);
                     }
 
                 }
@@ -545,7 +545,7 @@ public class BrowserActivity extends Activity {
         }
 
         private void switchToStandardMode() {
-            Log.d("BROWSERTESTING", "onCreate: network is online, going to standardMode");
+            Log.d("browser", "onCreate: network is online, going to standardMode");
             refresherHandle.cancel(true);
             startStandardMode();
         }
