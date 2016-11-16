@@ -110,8 +110,8 @@ public class BrowserActivity extends Activity {
             refreshTime = Integer.parseInt(propReader("ro.boot.refreshtime"));
         } catch (NumberFormatException e) {
             Log.d(LOGTAG, "onCreate: found invalid or missing refreshtime param for kiosk mode, " +
-                    "defaulting to 60 minutes");
-            refreshTime = 60 * 60;
+                    "defaulting to no refresh (0).");
+            refreshTime = 0;
         }
         KioskRefreshScheduler krs =
                 new KioskRefreshScheduler(propReader("ro.boot.url"), propReader("ro.boot.fallback"),
@@ -536,7 +536,13 @@ public class BrowserActivity extends Activity {
 
                 }
             };
-            refresherHandle = scheduler.scheduleAtFixedRate(refresher, 0, refreshTime, SECONDS);
+
+            if (refreshTime > 0) {
+                refresherHandle = scheduler.scheduleAtFixedRate(refresher, 0, refreshTime, SECONDS);
+            }
+            else {
+                runOnUiThread(changeToTargetURL);
+            }
         }
 
         private void switchToFailureMode() {
