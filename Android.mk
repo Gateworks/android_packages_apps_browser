@@ -23,7 +23,7 @@ LOCAL_EMMA_COVERAGE_FILTER := *,-com.android.common.*
 #LOCAL_REQUIRED_MODULES := SoundRecorder
 
 LOCAL_OVERRIDES_PACKAGES := \
-	LatinIME DeskClock FusedLocation WallpaperCropper MusicFx \
+	DeskClock FusedLocation WallpaperCropper MusicFx \
 	GateworksDemo MagicSmokeWallpapers LegacyCamera FSLOta WfdSink wfd \
 	VideoEditor FSLProfileApp FSLProfileService TSCalibration Gallery2 \
 	LiveWallpapers LiveWallpapersPicker VisualizationWallpapers CubeLiveWallpapers \
