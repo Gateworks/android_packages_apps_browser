@@ -68,6 +68,7 @@ import android.view.MenuItem;
 import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 import android.webkit.HttpAuthHandler;
@@ -857,6 +858,21 @@ public class Controller
     public void onPageFinished(Tab tab) {
         mCrashRecoveryHandler.backupState();
         mUi.onTabDataChanged(tab);
+
+        // Force sticky mode if page redirects/refreshes. We don't want
+        // the virtual keyboard or system bars to be visible if the site
+        // redirected or refreshed.
+        Log.i(LOGTAG,"onPageFinished: re asserting sticky mode and hiding keyboard");
+        InputMethodManager imm = ((InputMethodManager) mActivity.getSystemService(Context.INPUT_METHOD_SERVICE));
+        imm.hideSoftInputFromWindow(tab.getWebView().getWindowToken(), 0);
+        mActivity.getWindow().getDecorView().setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_IMMERSIVE
+                        | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
 
         // Performance probe
         if (false) {
