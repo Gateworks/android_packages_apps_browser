@@ -2579,53 +2579,53 @@ public class Controller
         WebView webView = getCurrentTopWebView();
         Tab tab = getCurrentTab();
         if (webView == null || tab == null) return false;
-
-        boolean ctrl = event.hasModifiers(KeyEvent.META_CTRL_ON);
-        boolean shift = event.hasModifiers(KeyEvent.META_SHIFT_ON);
-
-        switch(keyCode) {
-            case KeyEvent.KEYCODE_TAB:
-                if (event.isCtrlPressed()) {
-                    if (event.isShiftPressed()) {
-                        // prev tab
-                        switchToTab(getPrevTab());
-                    } else {
-                        // next tab
-                        switchToTab(getNextTab());
-                    }
-                    return true;
-                }
-                break;
-            case KeyEvent.KEYCODE_SPACE:
-                // WebView/WebTextView handle the keys in the KeyDown. As
-                // the Activity's shortcut keys are only handled when WebView
-                // doesn't, have to do it in onKeyDown instead of onKeyUp.
-                if (shift) {
-                    pageUp();
-                } else if (noModifiers) {
-                    pageDown();
-                }
-                return true;
-            case KeyEvent.KEYCODE_BACK:
-                if (!noModifiers) break;
-                event.startTracking();
-                return true;
-            case KeyEvent.KEYCODE_FORWARD:
-                if (!noModifiers) break;
-                tab.goForward();
-                return true;
-            case KeyEvent.KEYCODE_DPAD_LEFT:
-                if (ctrl) {
-                    tab.goBack();
-                    return true;
-                }
-                break;
-            case KeyEvent.KEYCODE_DPAD_RIGHT:
-                if (ctrl) {
-                    tab.goForward();
-                    return true;
-                }
-                break;
+//
+//        boolean ctrl = event.hasModifiers(KeyEvent.META_CTRL_ON);
+//        boolean shift = event.hasModifiers(KeyEvent.META_SHIFT_ON);
+//
+//        switch(keyCode) {
+//            case KeyEvent.KEYCODE_TAB:
+//                if (event.isCtrlPressed()) {
+//                    if (event.isShiftPressed()) {
+//                        // prev tab
+//                        switchToTab(getPrevTab());
+//                    } else {
+//                        // next tab
+//                        switchToTab(getNextTab());
+//                    }
+//                    return true;
+//                }
+//                break;
+//            case KeyEvent.KEYCODE_SPACE:
+//                // WebView/WebTextView handle the keys in the KeyDown. As
+//                // the Activity's shortcut keys are only handled when WebView
+//                // doesn't, have to do it in onKeyDown instead of onKeyUp.
+//                if (shift) {
+//                    pageUp();
+//                } else if (noModifiers) {
+//                    pageDown();
+//                }
+//                return true;
+//            case KeyEvent.KEYCODE_BACK:
+//                if (!noModifiers) break;
+//                event.startTracking();
+//                return true;
+//            case KeyEvent.KEYCODE_FORWARD:
+//                if (!noModifiers) break;
+//                tab.goForward();
+//                return true;
+//            case KeyEvent.KEYCODE_DPAD_LEFT:
+//                if (ctrl) {
+//                    tab.goBack();
+//                    return true;
+//                }
+//                break;
+//            case KeyEvent.KEYCODE_DPAD_RIGHT:
+//                if (ctrl) {
+//                    tab.goForward();
+//                    return true;
+//                }
+//                break;
 //          case KeyEvent.KEYCODE_B:    // menu
 //          case KeyEvent.KEYCODE_D:    // menu
 //          case KeyEvent.KEYCODE_E:    // in Chrome: puts '?' in URL bar
@@ -2643,25 +2643,25 @@ public class Controller
 //          case KeyEvent.KEYCODE_Q:    // unused
 //          case KeyEvent.KEYCODE_R:
 //          case KeyEvent.KEYCODE_S:    // in Chrome: saves page
-            case KeyEvent.KEYCODE_T:
-                // we can't use the ctrl/shift flags, they check for
-                // exclusive use of a modifier
-                if (event.isCtrlPressed()) {
-                    if (event.isShiftPressed()) {
-                        openIncognitoTab();
-                    } else {
-                        openTabToHomePage();
-                    }
-                    return true;
-                }
-                break;
+//            case KeyEvent.KEYCODE_T:
+//                // we can't use the ctrl/shift flags, they check for
+//                // exclusive use of a modifier
+//                if (event.isCtrlPressed()) {
+//                    if (event.isShiftPressed()) {
+//                        openIncognitoTab();
+//                    } else {
+//                        openTabToHomePage();
+//                    }
+//                    return true;
+//                }
+//                break;
 //          case KeyEvent.KEYCODE_U:    // in Chrome: opens source of page
 //          case KeyEvent.KEYCODE_V:    // text view intercepts to paste
 //          case KeyEvent.KEYCODE_W:    // menu
 //          case KeyEvent.KEYCODE_X:    // text view intercepts to cut
 //          case KeyEvent.KEYCODE_Y:    // unused
 //          case KeyEvent.KEYCODE_Z:    // unused
-        }
+//        }
         // it is a regular key and webview is not null
          return mUi.dispatchKey(keyCode, event);
     }
@@ -2681,22 +2681,22 @@ public class Controller
 
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
-        if (isMenuOrCtrlKey(keyCode)) {
-            mMenuIsDown = false;
-            if (KeyEvent.KEYCODE_MENU == keyCode
-                    && event.isTracking() && !event.isCanceled()) {
-                return onMenuKey();
-            }
-        }
-        if (!event.hasNoModifiers()) return false;
-        switch(keyCode) {
-            case KeyEvent.KEYCODE_BACK:
-                if (event.isTracking() && !event.isCanceled()) {
-                    onBackKey();
-                    return true;
-                }
-                break;
-        }
+//        if (isMenuOrCtrlKey(keyCode)) {
+//            mMenuIsDown = false;
+//            if (KeyEvent.KEYCODE_MENU == keyCode
+//                    && event.isTracking() && !event.isCanceled()) {
+//                return onMenuKey();
+//            }
+//        }
+//        if (!event.hasNoModifiers()) return false;
+//        switch(keyCode) {
+//            case KeyEvent.KEYCODE_BACK:
+//                if (event.isTracking() && !event.isCanceled()) {
+//                    onBackKey();
+//                    return true;
+//                }
+//                break;
+//        }
         return false;
     }
 
